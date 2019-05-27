@@ -142,6 +142,7 @@ if __name__ == "__main__":
             line = ','.join(str(i) for i in anchor)
             # write to file
             print(line + '\n')
+            print(line + '\n')
             gt_file.write(line + '\n')
         
         label_file.close()
