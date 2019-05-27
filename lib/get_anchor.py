@@ -138,6 +138,10 @@ if __name__ == "__main__":
             # change list to string
             line = ','.join(str(i) for i in anchor)
             # write to file
+<<<<<<< HEAD
+=======
+            print(line + '\n')
+>>>>>>> 4d18206abc54d5e9b09fdd4403f583cc71d990e0
             gt_file.write(line + '\n')
         
         label_file.close()
