@@ -4,7 +4,7 @@
 This file is to re-organize the MTWI_2018 dataset labels into CTPN anchor format.
 MTWI_2018 label format: [X1, Y1, X2, Y2, X3, Y3, X4, Y4, text]
 	(X1, Y1): left_top; (X2, Y2): left_bottom
-	(X3, Y3): right_top; (X4, Y4): right_bottom
+	(X3, Y3): right_bottom; (X4, Y4): right_top
 Only coordinates are needed in this task.
 
 """
@@ -37,7 +37,7 @@ def generate_gt_anchor(image, label, anchor_width=16):
 
     # get the left-side & right-side anchors' ids
     left_anchor_id = int(math.floor(max(min(coord[0], coord[2]), 0) / anchor_width))
-    right_anchor_id = int(math.ceil(min(max(coord[4], coord[6]), image.shape[1]) / anchor_width))
+    right_anchor_id = int(math.ceil(min(max(coord[6], coord[4]), image.shape[1]) / anchor_width))
 
     # the right side anchor may exceed the image width
     if right_anchor_id * 16 + 15 > image.shape[1]:
@@ -81,14 +81,14 @@ def cal_bound_y(raw_image, pairs, coord):
         for i in range(image.shape[0]):
             for j in range(image.shape[1]):
                 image[i, j, 0] = 0
-    
+
     # draw white text box on the image
     pt = [int(i) for i in coord]
     image = cv2.line(image, (pt[0], pt[1]), (pt[2], pt[3]), 255, thickness=1)
-    image = cv2.line(image, (pt[0], pt[1]), (pt[4], pt[5]), 255, thickness=1)
+    image = cv2.line(image, (pt[0], pt[1]), (pt[6], pt[7]), 255, thickness=1)
     image = cv2.line(image, (pt[4], pt[5]), (pt[6], pt[7]), 255, thickness=1)
-    image = cv2.line(image, (pt[6], pt[7]), (pt[2], pt[3]), 255, thickness=1)
-    
+    image = cv2.line(image, (pt[4], pt[5]), (pt[2], pt[3]), 255, thickness=1)
+
     is_top = False
     is_bottom = False
     
@@ -141,7 +141,6 @@ if __name__ == "__main__":
             # change list to string
             line = ','.join(str(i) for i in anchor)
             # write to file
-            print(line + '\n')
             gt_file.write(line + '\n')
         
         label_file.close()
