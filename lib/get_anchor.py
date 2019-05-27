@@ -75,9 +75,12 @@ def cal_bound_y(raw_image, pairs, coord):
     y_bottom = []
     height = image.shape[0]
     # set channel 0 as mask
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            image[i, j, 0] = 0
+    if len(image.shape) < 3:
+        image[i, j] = 0;
+    else:
+        for i in range(image.shape[0]):
+            for j in range(image.shape[1]):
+                image[i, j, 0] = 0
     
     # draw white text box on the image
     pt = [int(i) for i in coord]
@@ -138,6 +141,7 @@ if __name__ == "__main__":
             # change list to string
             line = ','.join(str(i) for i in anchor)
             # write to file
+            print(line + '\n')
             gt_file.write(line + '\n')
         
         label_file.close()
