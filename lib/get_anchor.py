@@ -75,10 +75,9 @@ def cal_bound_y(raw_image, pairs, coord):
     y_bottom = []
     height = image.shape[0]
     # set channel 0 as mask
-    if len(image.shape) == 3:
-        for i in range(image.shape[0]):
-            for j in range(image.shape[1]):
-                image[i, j, 0] = 0
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            image[i, j, 0] = 0
 
     # draw white text box on the image
     pt = [int(i) for i in coord]
@@ -124,7 +123,9 @@ if __name__ == "__main__":
     for image_path, label_path in zip(os.listdir(image_dir), os.listdir(label_dir)):
         image = Image.open(image_dir + '/' + image_path)
         image = np.array(image)
-        print(label_path)
+        if len(image.shape) < 3:
+            print("Bad image: " + label_path)
+            continue
         label_file = open(label_dir + '/' + label_path, "r", encoding='utf-8')
         gt_path = label_path
         gt_file = open(gt_dir + '/' + gt_path, "w+")
