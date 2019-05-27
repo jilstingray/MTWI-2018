@@ -75,9 +75,7 @@ def cal_bound_y(raw_image, pairs, coord):
     y_bottom = []
     height = image.shape[0]
     # set channel 0 as mask
-    if len(image.shape) < 3:
-        image[i, j] = 0;
-    else:
+    if len(image.shape) == 3:
         for i in range(image.shape[0]):
             for j in range(image.shape[1]):
                 image[i, j, 0] = 0
