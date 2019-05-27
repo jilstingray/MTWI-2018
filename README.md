@@ -1,6 +1,6 @@
 # README
 
-The implementation of Connectionist Text Proposal Network (CTPN) targeting at MTWI 2018 Challenge 2, using Python 3.x and PyTorch.
+The Python implementation of Connectionist Text Proposal Network (CTPN) targeting at MTWI 2018 Challenge 2.
 
 ## Competition Details
 
