@@ -5,6 +5,7 @@ This file is to re-organize the MTWI_2018 dataset labels into CTPN anchor format
 MTWI_2018 label format: [X1, Y1, X2, Y2, X3, Y3, X4, Y4, text]
 	(X1, Y1): left_top; (X2, Y2): left_bottom
 	(X3, Y3): right_bottom; (X4, Y4): right_top
+gt-label format: list of tuple(position, center_y, height)
 Only coordinates are needed in this task.
 
 """
