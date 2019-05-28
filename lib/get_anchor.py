@@ -7,7 +7,6 @@ MTWI_2018 label format: [X1, Y1, X2, Y2, X3, Y3, X4, Y4, text]
 	(X3, Y3): right_bottom; (X4, Y4): right_top
 gt-label format: list of tuple(position, center_y, height)
 Only coordinates are needed in this task.
-
 """
 
 import copy
@@ -18,10 +17,6 @@ import cv2
 import numpy as np
 from PIL import Image
 
-image_dir = "./mtwi_2018_train/image_train"
-label_dir = "./mtwi_2018_train/txt_train"
-gt_dir = "./mtwi_2018_train/gt_train"
-
 # generate gt-anchors
 def generate_gt_anchor(image, label, anchor_width=16):
     """
@@ -31,7 +26,6 @@ def generate_gt_anchor(image, label, anchor_width=16):
         anchor_width: the width of the anchors
     return:
         list of tuple(position, center_y, height)
-
     """
     result = []
     coord = [float(label[i]) for i in range(len(label))]
@@ -69,7 +63,6 @@ def cal_bound_y(raw_image, pairs, coord):
         coord: gt-anchor's coordinates (4 points)
     return: 
         gt-anchor's top & bottom y-axis coordinates
-
     """
     image = copy.deepcopy(raw_image)
     y_top = []
@@ -119,33 +112,26 @@ def cal_bound_y(raw_image, pairs, coord):
     return y_top, y_bottom
 
 
-# main()
-if __name__ == "__main__":
-    for image_path, label_path in zip(os.listdir(image_dir), os.listdir(label_dir)):
-        image = Image.open(image_dir + '/' + image_path)
-        image = np.array(image)
-        # if image doesn't have RGB channels, abandon
-        if len(image.shape) < 3:
-            print("Bad image: " + image_path)
-            continue
-        label_file = open(label_dir + '/' + label_path, "r", encoding='utf-8')
-        gt_path = label_path
-        gt_file = open(gt_dir + '/' + gt_path, "w+")
+# get all anchors from an image
+def get_anchors_from_image(image_path, label_path):
+    """
+    args:
+        image_path: *.jpg 
+        label_path: *.txt
+    return:
+        list of anchors
+    """
+    image = Image.open(image_path)
+    image = np.array(image)
+    label_file = open(label_path, "r", encoding='utf-8')
+    result = []
 
-        # get anchors & write to gt_file
-        for line in label_file.readlines():
-            line = line.split(',')
-            # get rid of text
-            label = [float(line[i]) for i in range(8)]
-            # get anchor
-            anchor = generate_gt_anchor(image, label)
-            if anchor == []:
-                continue
-            # change list to string
-            line = ','.join(str(i) for i in anchor)
-            # write to file
-            gt_file.write(line + '\n')
-        
-        label_file.close()
-        gt_file.close()
-    print("anchors have been generated.")
+    # get anchors & write to gt_file
+    for line in label_file.readlines():
+        line = line.split(',')
+        # get rid of text
+        label = [float(line[i]) for i in range(8)]
+        result.append(generate_gt_anchor(image, label))
+    
+    label_file.close()
+    return result
