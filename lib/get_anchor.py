@@ -145,7 +145,6 @@ def reorganize_dataset():
     all_label = os.listdir(label_dir)
     all_image.sort()
     all_label.sort()
-    print(all_image)
     count = 0
     for image_name, label_name in zip(all_image, all_label):
         image = Image.open(image_dir + '/' + image_name)
