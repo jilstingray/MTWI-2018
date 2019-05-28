@@ -123,7 +123,7 @@ if __name__ == "__main__":
     for image_path, label_path in zip(os.listdir(image_dir), os.listdir(label_dir)):
         image = Image.open(image_dir + '/' + image_path)
         image = np.array(image)
-        # if image has less than 3 channels, abandon
+        # if image doesn't have RGB channels, abandon
         if len(image.shape) < 3:
             print("Bad image: " + label_path)
             continue
