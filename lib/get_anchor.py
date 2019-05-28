@@ -80,7 +80,7 @@ def cal_bound_y(raw_image, pairs, coord):
         for j in range(image.shape[1]):
             image[i, j, 0] = 0
 
-    # draw white text box on the image
+    # draw text box on the image
     pt = [int(i) for i in coord]
     image = cv2.line(image, (pt[0], pt[1]), (pt[2], pt[3]), 255, thickness=1)
     image = cv2.line(image, (pt[0], pt[1]), (pt[6], pt[7]), 255, thickness=1)
