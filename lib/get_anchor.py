@@ -135,3 +135,31 @@ def get_anchors_from_image(image_path, label_path):
     
     label_file.close()
     return result
+
+
+# reorganize original dataset
+def reorganize_dataset():
+    image_dir = "./image_train"
+    label_dir = "./txt_train"
+    all_image = os.listdir(image_dir)
+    all_label = os.listdir(label_dir)
+    all_image.sort()
+    all_label.sort()
+    print(all_image)
+    count = 0
+    for image_name, label_name in zip(all_image, all_label):
+        image = Image.open(image_dir + '/' + image_name)
+        image = np.array(image)
+
+        # if image doesn't have RGB channels, abandon
+        if len(image.shape) < 3:
+            print("Bad image: " + image_name)
+            os.remove(image_dir + '/' + image_name)
+            os.remove(label_dir + '/' + label_name)
+
+        else:
+            os.rename(image_dir + '/' + image_name, image_dir + '/' + str(count) + ".jpg")
+            os.rename(label_dir + '/' + label_name, label_dir + '/' + str(count) + ".txt")
+            image_name = str(count) + ".jpg"
+            label_name = str(count) + ".txt"
+            count += 1
