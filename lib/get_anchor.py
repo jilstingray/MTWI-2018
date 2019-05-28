@@ -126,7 +126,7 @@ if __name__ == "__main__":
         image = np.array(image)
         # if image doesn't have RGB channels, abandon
         if len(image.shape) < 3:
-            print("Bad image: " + label_path)
+            print("Bad image: " + image_path)
             continue
         label_file = open(label_dir + '/' + label_path, "r", encoding='utf-8')
         gt_path = label_path
