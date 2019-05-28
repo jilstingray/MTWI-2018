@@ -123,6 +123,7 @@ if __name__ == "__main__":
     for image_path, label_path in zip(os.listdir(image_dir), os.listdir(label_dir)):
         image = Image.open(image_dir + '/' + image_path)
         image = np.array(image)
+        # if image has less than 3 channels, abandon
         if len(image.shape) < 3:
             print("Bad image: " + label_path)
             continue
@@ -137,6 +138,8 @@ if __name__ == "__main__":
             label = [float(line[i]) for i in range(8)]
             # get anchor
             anchor = generate_gt_anchor(image, label)
+            if anchor == []:
+                continue
             # change list to string
             line = ','.join(str(i) for i in anchor)
             # write to file
