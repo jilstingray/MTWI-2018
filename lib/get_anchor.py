@@ -26,7 +26,7 @@ def generate_gt_anchor(image, label, anchor_width=16):
     """
     args:
         image: input image
-        label:L input MTWI_2018 label (without text)
+        label: input MTWI_2018 label (without text)
         anchor_width: the width of the anchors
     return:
         list of tuple(position, center_y, height)
