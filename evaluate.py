@@ -1,0 +1,101 @@
+# -*- coding: utf-8 -*-
+
+"""
+Training model evaluation
+"""
+
+import copy
+import os
+import random
+import time
+import cv2
+import numpy as np
+import torch
+import dataset_handler
+import lib.generate_anchor
+import lib.tag_anchor
+
+def val(network, criterion, batch_size, using_cuda, logger, image_list):
+    random_list = random.sample(image_list, batch_size)
+    total_loss = 0
+    total_cls_loss = 0
+    total_v_reg_loss = 0
+    total_o_reg_loss = 0
+    start_time = time.time()
+    for i in random_list:
+        root, file_name = os.path.split(i)
+        root, _ = os.path.split(root)
+        name, _ = os.path.splitext(file_name)
+        txt_name = name + '.txt'
+        txt_path = os.path.join(root, "txt_test", txt_name)
+        if not os.path.exists(txt_path):
+            print('txt file of image {0} not exists.'.format(txt_path))
+            continue
+
+        txt = dataset_handler.read_txt_file(txt_path)
+        image = cv2.imread(i)
+        if image is None:
+            batch_size -= 1
+            continue
+
+        image, txt = dataset_handler.scale_image(image, txt)
+        tensor_img = image[np.newaxis, :, :, :]
+        tensor_img = tensor_img.transpose((0, 3, 1, 2))
+        if using_cuda:
+            tensor_img = torch.FloatTensor(tensor_img).cuda()
+        else:
+            tensor_img = torch.FloatTensor(tensor_img)
+
+        vertical_pred, score, side_refinement = network(tensor_img)
+        del tensor_img
+        positive = []
+        negative = []
+        vertical_reg = []
+        side_refinement_reg = []
+        visual_image = copy.deepcopy(image)
+
+        try:
+            for box in txt:
+                txt_anchor, visual_image = lib.generate_anchor.generate_anchor(image, box, draw_image_box=visual_image)
+                positive1, negative1, vertical_reg1, side_refinement_reg1 = lib.tag_anchor.tag_anchor(txt_anchor, score, box)
+                positive += positive1
+                negative += negative1
+                vertical_reg += vertical_reg1
+                side_refinement_reg += side_refinement_reg1
+        except:
+            print("warning: image %s raise error!" % i)
+            batch_size -= 1
+            continue
+
+        if len(vertical_reg) == 0 or len(positive) == 0 or len(side_refinement_reg) == 0:
+            batch_size -= 1
+            continue
+
+        loss, txts_loss, v_reg_loss, o_reg_loss = criterion(score, vertical_pred, side_refinement, positive,
+                                                           negative, vertical_reg, side_refinement_reg)
+        total_loss += float(loss)
+        total_cls_loss += float(total_cls_loss)
+        total_v_reg_loss += float(v_reg_loss)
+        total_o_reg_loss += float(o_reg_loss)
+    end_time = time.time()
+    total_time = end_time - start_time
+
+    if batch_size == 0:
+        print('evaluation failed.')
+        return 1
+    print('\n--- start evaluation ---')
+    print('loss: {0}'.format(total_loss / float(batch_size)))
+    logger.info('evaluate loss: {0}'.format(total_loss / float(batch_size)))
+
+    print('classification loss: {0}'.format(total_cls_loss / float(batch_size)))
+    logger.info('evaluate vertical regression loss: {0}'.format(total_v_reg_loss / float(batch_size)))
+
+    print('vertical regression loss: {0}'.format(total_v_reg_loss / float(batch_size)))
+    logger.info('evaluate side-refinement regression loss: {0}'.format(total_o_reg_loss / float(batch_size)))
+
+    print('side-refinement regression loss: {0}'.format(total_o_reg_loss / float(batch_size)))
+    logger.info('evaluate side-refinement regression loss: {0}'.format(total_o_reg_loss / float(batch_size)))
+
+    print('{1} iterations for {0} seconds.'.format(total_time, batch_size))
+    print('--- end evaluation ---\n')
+    return total_loss
