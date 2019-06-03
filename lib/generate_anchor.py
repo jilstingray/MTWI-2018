@@ -2,7 +2,7 @@
 
 """
 This file is to re-organize the MTWI_2018 dataset labels and generate CTPN anchors.
-MTWI_2018 label format: [X1, Y1, X2, Y2, X3, Y3, X4, Y4, text]
+If you've got the original MTWI_2018 dataset from Aliyun, try to set reorganize_dataset() as main() to re-organize it.
 	(X1, Y1): left_top; (X2, Y2): left_bottom
 	(X3, Y3): right_bottom; (X4, Y4): right_top
 anchor format: list of tuple(position, center_y, height)

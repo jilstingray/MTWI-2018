@@ -55,6 +55,7 @@ def create_train_val():
     return train_image_list, train_txt_list, test_image_list, test_txt_list 
 
 
+# draw loss function curve
 def draw_loss_plot(train_loss_list=[], test_loss_list=[]):
     x1 = range(0, len(train_loss_list))
     x2 = range(0, len(test_loss_list))
@@ -86,7 +87,8 @@ if __name__ == '__main__':
     log_format = formatter = logging.Formatter('%(asctime)s: %(message)s')
     log_handler.setFormatter(log_format)
     logger.addHandler(log_handler)
-
+    
+    # config settings
     gpu_id = cf.get('global', 'gpu_id')
     epoch = cf.getint('global', 'epoch')
     val_batch_size = cf.getint('global', 'val_batch')
@@ -104,7 +106,6 @@ if __name__ == '__main__':
     print('Using gpu id(available if use cuda): {0}'.format(gpu_id))
     print('Train epoch: {0}'.format(epoch))
     print('Use CUDA: {0}'.format(using_cuda))
-
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
     no_grad = [
         'cnn.VGG_16.convolution1_1.weight',
@@ -113,9 +114,11 @@ if __name__ == '__main__':
         'cnn.VGG_16.convolution1_2.bias'
     ]
 
+    # create directory of saved models
     if not os.path.exists(MODEL_SAVE_PATH):
         os.mkdir(MODEL_SAVE_PATH)
 
+    # load CTPN PyTorch network
     net = Net.CTPN()
     for name, value in net.named_parameters():
         if name in no_grad:
@@ -130,11 +133,12 @@ if __name__ == '__main__':
     if using_cuda:
         net.cuda()
     net.train()
+
     # print network construction
     #print(net)
 
+    # training criterion (loss)
     criterion = Loss.CTPN_Loss(using_cuda=using_cuda)
-
     train_image_list, train_txt_list, val_image_list, val_txt_list = create_train_val()
     total_iter = len(train_image_list)
     print("number of training images: %s" % len(train_image_list))
@@ -165,13 +169,10 @@ if __name__ == '__main__':
             root, _ = os.path.split(root)
             name, _ = os.path.splitext(file_name)
             txt_name = name + '.txt'
-
             txt_path = os.path.join(root, 'txt_train', txt_name)
-
             if not os.path.exists(txt_path):
                 print('txt file of image {0} not exists.'.format(img))
                 continue
-
             txt = dataset_handler.read_txt_file(txt_path)
             #print("processing image %s" % os.path.join(image_root1, im))
             image = cv2.imread(img)
@@ -189,13 +190,11 @@ if __name__ == '__main__':
 
             vertical_pred, score, side_refinement = net(tensor_image)
             del tensor_image
-
             # transform bbox txt to anchor txt for training
             positive = []
             negative = []
             vertical_reg = []
             side_refinement_reg = []
-
             visual_image = copy.deepcopy(image)
 
             try:
@@ -238,7 +237,7 @@ if __name__ == '__main__':
                 print('Epoch: {2}/{3}, Iteration: {0}/{1}, loss: {4}, cls_loss: {5}, v_reg_loss: {6}, o_reg_loss: {7}, {8}'.
                       format(iteration, total_iter, i, epoch, total_loss / display_iter, total_cls_loss / display_iter,
                              total_v_reg_loss / display_iter, total_o_reg_loss / display_iter, img))
-
+                # write logs             
                 logger.info(
                     'Epoch: {2}/{3}, Iteration: {0}/{1}'.format(iteration, total_iter, i, epoch))
                 logger.info('loss: {0}'.format(total_loss / display_iter))
@@ -250,14 +249,13 @@ if __name__ == '__main__':
                     'side-refinement regression loss: {0}'.format(total_o_reg_loss / display_iter))
 
                 train_loss_list.append(total_loss)
-
                 total_loss = 0
                 total_cls_loss = 0
                 total_v_reg_loss = 0
                 total_o_reg_loss = 0
                 start_time = time.time()
 
-            # cross validation during the training process
+            # validation during the training process
             if iteration % val_iter == 0:
                 net.eval()
                 logger.info(
@@ -280,4 +278,5 @@ if __name__ == '__main__':
         torch.save(net.state_dict(), os.path.join(
             MODEL_SAVE_PATH, 'ctpn-{0}-end.model'.format(i)))
 
+        # draw loss function curve
         draw_loss_plot(train_loss_list, test_loss_list)

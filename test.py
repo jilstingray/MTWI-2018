@@ -207,7 +207,7 @@ def get_successions(v, anchors=[]):
                         need_merge = True
 
     result = []
-    print(texts)
+    #print(texts)
     for text in texts:
         if len(text) < MIN_ANCHOR_BATCH:
             continue
@@ -269,7 +269,7 @@ def infer_one(im_name, net):
 
 def random_test(net):
     test_pair = gen_test_images(IMG_TEST_ROOT, 0)
-    print(test_pair)
+    #print(test_pair)
     if os.path.exists(TEST_RESULT):
         shutil.rmtree(TEST_RESULT)
 
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         net.load_state_dict(torch.load(MODEL, map_location=running_mode))
     else:
         net.load_state_dict(torch.load(MODEL))
-    print(net)
+    #print(net)
     net.eval()
 
     if sys.argv[1] == 'random':

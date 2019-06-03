@@ -2,6 +2,7 @@
 
 """
 Dataset handler: create dataset using LMDB
+This procedure is optional, but some functions (scaling, etc.) in this file is necessary for training.
 """
 
 import codecs
@@ -73,7 +74,7 @@ def create_dataset_mtwi(image_dir, txt_dir, output_dir):
     create_dataset(output_dir, image_path_list, txt_path_list)
 
 
-# 缩放图像
+# 缩放图像和坐标
 def scale_image(image, txt, shortest_side=300):
     """
     此函数的作用是缩放图像, 同时相应的边框的坐标也要缩放
@@ -108,6 +109,7 @@ def scale_image(image, txt, shortest_side=300):
     return image, scale_txt
 
 
+# 缩放图像(尺寸300*300)
 def scale_image_only(image, shortest_side=300):
     height = image.shape[0]
     width = image.shape[1]
@@ -122,6 +124,7 @@ def scale_image_only(image, shortest_side=300):
     return image
 
 
+# 检查图像完整性
 def check_image(image):
     if image is None:
         return False
@@ -131,7 +134,8 @@ def check_image(image):
     return True
 
 
-def write_cache(env, data):
+# 写入LMDB
+def write_data(env, data):
     with env.begin(write=True) as e:
         for name, image in data.items():
             #print(type(name))  # <class 'str'>
@@ -149,30 +153,34 @@ def list2str(input_list):
     return '|'.join(result), True
 
 
-# 建立数据集
+# 建立LMDB数据集
 def create_dataset(output_dir, image_list, txt_list):
     assert len(image_list) == len(txt_list)
     network = Net.VGG_16()
     num = len(image_list)
+    # create directory
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+    # restrict size of dataset file
     env = lmdb.Environment(output_dir, map_size=524288000)  # 500MB
     cache = {}
     counter = 1
     for i in range(num):
         image_path = image_list[i]
-        txt = read_txt_file(txt_list[i]) 
+        txt = read_txt_file(txt_list[i])
+        # check existance of image path
         if not os.path.exists(image_path):
             print("{0} not found.".format(image_path))
             continue
-
+        # check existance of txt file
         if len(txt) == 0:
-            print("Labels of {0} not found.".format(image_path))
+            print("labels of {0} not found.".format(image_path))
             continue
-
+        # read image
         image = cv2.imread(image_path)
+        # check integrity of image
         if not check_image(image):
-            print('Image {0} is not valid.'.format(image_path))
+            print('image {0} is not valid.'.format(image_path))
             continue
         
         # 缩放图片和坐标
@@ -180,7 +188,7 @@ def create_dataset(output_dir, image_list, txt_list):
         # 坐标转化为字符
         txt_str = list2str(txt)
         if not txt_str[1]:
-            print("Labels of {0} are not valid.".format(image_path))
+            print("labels of {0} are not valid.".format(image_path))
             continue
         
         # 把图片和坐标存入env
@@ -190,21 +198,22 @@ def create_dataset(output_dir, image_list, txt_list):
         cache[txt_key] = txt_str[0]
         counter += 1
         if counter % 100 == 0:
-            write_cache(env, cache)
+            write_data(env, cache)
             cache.clear()
-            print('Written {0}/{1}'.format(counter, num))
+            print('written {0}/{1}'.format(counter, num))
 
     cache['num'] = str(counter - 1)
 
-    write_cache(env, cache)
-    print('Create dataset with {0} image.'.format(counter - 1))
+    write_data(env, cache)
+    print('create dataset with {0} image.'.format(counter - 1))
 
 
+# LMDB dataset class
 class LMDB_dataset(Dataset):
     def __init__(self, root, transformer=None):
         self.env = lmdb.open(root, max_readers=1, readonly=True, lock=False, readahead=False, meminit=False)
         if not self.env:
-            print("Cannot create lmdb from root {0}.".format(root))
+            print("cannot create lmdb from root {0}.".format(root))
         with self.env.begin(write=False) as e:
             self.data_num = int(e.get('num'))
         self.transformer = transformer
@@ -224,6 +233,7 @@ class LMDB_dataset(Dataset):
         return image, txt
 
 
+# OPTIONAL: create LMDB dataset
 if __name__ == '__main__':
     image_dir = './mtwi_2018/image_train'
     txt_dir = './mtwi_2018/txt_train'
