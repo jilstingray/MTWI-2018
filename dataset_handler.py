@@ -249,7 +249,7 @@ def reorganize_dataset(image_dir, txt_dir):
         image = Image.open(image_dir + '/' + image_name)
         image = np.array(image)
 
-        # if image doesn't have RGB channels, abandon
+        # if image doesn't have readable RGB channels, abandon
         if len(image.shape) < 3:
             print("Bad image: " + image_name)
             os.remove(image_dir + '/' + image_name)
