@@ -25,6 +25,14 @@ python setup_cython.py build_ext --inplace
 
 * If you've downloaded the original MTWI_2018 dataset from Aliyun, try to use `lib.generate_anchor.reorganize_dataset()` to re-organize it, since some pictures may not be read as RGB channels.
 
+## Infer an image
+
+After training, open infer.py and set `MODEL` as your trained model's path, then run infer.py:
+
+```bash
+python infer.py [url] [infer_one(random)] [cpu(gpu)]
+```
+
 ## Reference
 
 https://github.com/AstarLight/Lets_OCR/tree/master/detector/ctpn

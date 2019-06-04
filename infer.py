@@ -2,7 +2,7 @@
 
 """
 CPTN network infer process
-run command: python test.py [url infer_one] [random] [cpu(gpu)]
+run command: python infer.py [url] [infer_one(random)] [cpu(gpu)]
 """
 
 import copy
@@ -23,7 +23,7 @@ anchor_height = [11, 16, 22, 32, 46, 66, 94, 134, 191, 273]
 
 IMG_TEST_ROOT = "./mtwi_2018/image_test"
 TEST_RESULT = './test_result'
-THRESH_HOLD = 0.3
+THRESHOLD = 0.3
 NMS_THRESH = 0.3
 NEIGHBOURS_MIN_DIST = 50
 MIN_ANCHOR_BATCH = 2
@@ -232,7 +232,7 @@ def infer_one(im_name, net):
     for i in range(score.shape[0]):
         for j in range(score.shape[1]):
             for k in range(score.shape[2]):
-                if score[i, j, k, 1] > THRESH_HOLD:
+                if score[i, j, k, 1] > THRESHOLD:
                     result.append((j, k, i, float(score[i, j, k, 1].detach().numpy())))
 
     for_nms = []
@@ -289,7 +289,7 @@ def random_test(net):
         for i in range(score.shape[0]):
             for j in range(score.shape[1]):
                 for k in range(score.shape[2]):
-                    if score[i, j, k, 1] > THRESH_HOLD:
+                    if score[i, j, k, 1] > THRESHOLD:
                         result.append((j, k, i, float(score[i, j, k, 1].detach().numpy())))
 
         for_nms = []
