@@ -27,7 +27,7 @@ python setup_cython.py build_ext --inplace
 
 ## Infer an image
 
-After training, open infer.py and set `MODEL` as your trained model's path, then run infer.py:
+After training, open infer.py and set `MODEL` as your trained model's path. Then run infer.py:
 
 ```bash
 python infer.py [url] [infer_one(random)] [cpu(gpu)]
