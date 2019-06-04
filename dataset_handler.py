@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Dataset handler: create training dataset using LMDB
-This procedure is optional, but some functions (scaling, etc.) in this file is necessary for training.
+Dataset handler: reorganize training dataset, create dataset using LMDB (optional) 
+    and some necessary data processing functions.
+If you've got the original MTWI_2018 dataset from Aliyun, try to use reorganize_dataset() to reorganize it.
+The LMDB dataset generation procedure is optional.
+Some functions (scaling, etc.) in this file is necessary for training
 """
 
 import codecs
@@ -10,6 +13,8 @@ import os
 import sys
 import cv2
 import lmdb
+import numpy as np
+from PIL import Image
 from torch.utils.data import Dataset
 import lib.utils as utils
 import net.network as Net
@@ -153,7 +158,7 @@ def list2str(input_list):
     return '|'.join(result), True
 
 
-# 建立LMDB数据集
+# OPTIONAL: 建立LMDB数据集
 def create_dataset(output_dir, image_list, txt_list):
     assert len(image_list) == len(txt_list)
     network = Net.VGG_16()
@@ -233,9 +238,35 @@ class LMDB_dataset(Dataset):
         return image, txt
 
 
-# OPTIONAL: create LMDB dataset
+# 整理数据集
+def reorganize_dataset(image_dir, txt_dir):
+    all_image = os.listdir(image_dir)
+    all_label = os.listdir(txt_dir)
+    all_image.sort()
+    all_label.sort()
+    count = 0
+    for image_name, label_name in zip(all_image, all_label):
+        image = Image.open(image_dir + '/' + image_name)
+        image = np.array(image)
+
+        # if image doesn't have RGB channels, abandon
+        if len(image.shape) < 3:
+            print("Bad image: " + image_name)
+            os.remove(image_dir + '/' + image_name)
+            os.remove(txt_dir + '/' + label_name)
+
+        else:
+            os.rename(image_dir + '/' + image_name, image_dir + '/' + str(count) + ".jpg")
+            os.rename(txt_dir + '/' + label_name, txt_dir + '/' + str(count) + ".txt")
+            image_name = str(count) + ".jpg"
+            label_name = str(count) + ".txt"
+            count += 1
+
+
 if __name__ == '__main__':
     image_dir = './mtwi_2018/image_train'
     txt_dir = './mtwi_2018/txt_train'
     output_dir = 'data'
-    create_dataset_mtwi(image_dir, txt_dir, output_dir)
+    reorganize_dataset(image_dir, txt_dir)
+    # OPTIONAL: create LMDB dataset
+    #create_dataset_mtwi(image_dir, txt_dir, output_dir)

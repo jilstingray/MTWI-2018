@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This file is to re-organize the MTWI_2018 dataset labels and generate CTPN anchors.
-If you've got the original MTWI_2018 dataset from Aliyun, try to set reorganize_dataset() as main() to re-organize it.
+This file is to generate CTPN anchors during training process.
 	(X1, Y1): left_top; (X2, Y2): left_bottom
 	(X3, Y3): right_bottom; (X4, Y4): right_top
 anchor format: list of tuple(position, center_y, height)
@@ -138,30 +137,3 @@ def get_anchors_from_image(image_path, label_path):
     
     txt.close()
     return result
-
-
-# 整理数据集
-def reorganize_dataset():
-    image_dir = "./image_train"
-    txt_dir = "./txt_train"
-    all_image = os.listdir(image_dir)
-    all_label = os.listdir(txt_dir)
-    all_image.sort()
-    all_label.sort()
-    count = 0
-    for image_name, label_name in zip(all_image, all_label):
-        image = Image.open(image_dir + '/' + image_name)
-        image = np.array(image)
-
-        # if image doesn't have RGB channels, abandon
-        if len(image.shape) < 3:
-            print("Bad image: " + image_name)
-            os.remove(image_dir + '/' + image_name)
-            os.remove(txt_dir + '/' + label_name)
-
-        else:
-            os.rename(image_dir + '/' + image_name, image_dir + '/' + str(count) + ".jpg")
-            os.rename(txt_dir + '/' + label_name, txt_dir + '/' + str(count) + ".txt")
-            image_name = str(count) + ".jpg"
-            label_name = str(count) + ".txt"
-            count += 1

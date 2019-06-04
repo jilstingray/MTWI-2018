@@ -23,7 +23,7 @@ python setup_cython.py build_ext --inplace
 
 * Modify config.py and use it to generate config file for your environment.
 
-* If you've downloaded the original MTWI_2018 dataset from Aliyun, try to use `lib.generate_anchor.reorganize_dataset()` to re-organize it, since some pictures may not be read as RGB channels.
+* If you've downloaded the original MTWI_2018 dataset from Aliyun, try to use `dataset_handler.reorganize_dataset()` to reorganize it, since some pictures may not be read as RGB channels.
 
 ## Infer an image
 
