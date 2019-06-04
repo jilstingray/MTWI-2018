@@ -30,7 +30,7 @@ def draw_box_4pt(image, pt, color=(0, 255, 0), thickness=2):
 # 多边形绘制
 def draw_ploy_4pt(img, pt, color=(0, 255, 255), thickness=1):
     pts = np.array([[pt[0], pt[1]], [pt[2], pt[3]], [pt[4], pt[5]], [pt[6], pt[7]]], np.int32)
-    print(pts)
+    #print(pts)
     pts = pts.reshape((-1, 1, 2))
     return cv2.polylines(img, [pts], True, color, thickness)
 
