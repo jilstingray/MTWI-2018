@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
+<<<<<<< HEAD
 Dataset handler: create training dataset using LMDB
+=======
+Dataset handler: create dataset using LMDB
+>>>>>>> ffbf114ad603db88d76ae90ae167fd1aec18bce6
 This procedure is optional, but some functions (scaling, etc.) in this file is necessary for training.
 """
 
@@ -75,7 +79,11 @@ def create_dataset_mtwi(image_dir, txt_dir, output_dir):
 
 
 # 缩放图像和坐标
+<<<<<<< HEAD
 def scale_image(image, txt, shortest_side=600):
+=======
+def scale_image(image, txt, shortest_side=300):
+>>>>>>> ffbf114ad603db88d76ae90ae167fd1aec18bce6
     """
     此函数的作用是缩放图像, 同时相应的边框的坐标也要缩放
     return: image, txt scale
@@ -109,8 +117,13 @@ def scale_image(image, txt, shortest_side=600):
     return image, scale_txt
 
 
+<<<<<<< HEAD
 # 缩放图像(尺寸600*600)
 def scale_image_only(image, shortest_side=600):
+=======
+# 缩放图像(尺寸300*300)
+def scale_image_only(image, shortest_side=300):
+>>>>>>> ffbf114ad603db88d76ae90ae167fd1aec18bce6
     height = image.shape[0]
     width = image.shape[1]
     scale = float(shortest_side)/float(min(height, width))
@@ -161,8 +174,13 @@ def create_dataset(output_dir, image_list, txt_list):
     # create directory
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+<<<<<<< HEAD
     # restrict size of dataset file (1.5GB limit)
     env = lmdb.Environment(output_dir, map_size=1610612736)
+=======
+    # restrict size of dataset file
+    env = lmdb.Environment(output_dir, map_size=524288000)  # 500MB
+>>>>>>> ffbf114ad603db88d76ae90ae167fd1aec18bce6
     cache = {}
     counter = 1
     for i in range(num):
