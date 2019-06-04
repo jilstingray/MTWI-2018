@@ -38,7 +38,7 @@ class CTPN_Loss(nn.Module):
         positive_num = min(int(self.Ns * self.ratio), len(positive))
         negative_num = self.Ns - positive_num
         positive_batch = random.sample(positive, positive_num)
-        print(positive_num, negative_num)
+        #print(positive_num, negative_num)
         negative_batch = random.sample(negative, negative_num)
         # using CUDA
         if self.using_cuda:
