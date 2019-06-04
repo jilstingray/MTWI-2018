@@ -24,10 +24,10 @@ anchor_height = [11, 16, 22, 32, 46, 66, 94, 134, 191, 273]
 IMG_TEST_ROOT = "./mtwi_2018/image_test"
 TEST_RESULT = './test_result'
 THRESHOLD = 0.3
-NMS_THRESH = 0.3
+NMS_THRESHOLD = 0.3
 NEIGHBOURS_MIN_DIST = 50
 MIN_ANCHOR_BATCH = 2
-MODEL = './model/ctpn-9-end.model'
+MODEL = "D:\Workspace\GitHub\MTWI-2018\ctpn-9-end.model"
 
 
 def threshold(coords, min_, max_):
@@ -240,7 +240,7 @@ def infer_one(im_name, net):
         pt = lib.utils.trans_to_2pt(box[1], box[0] * 16 + 7.5, anchor_height[box[2]])
         for_nms.append([pt[0], pt[1], pt[2], pt[3], box[3], box[0], box[1], box[2]])
     for_nms = np.array(for_nms, dtype=np.float32)
-    nms_result = lib.nms.cpu_nms(for_nms, NMS_THRESH)
+    nms_result = lib.nms.cpu_nms(for_nms, NMS_THRESHOLD)
 
     out_nms = []
     for i in nms_result:
@@ -255,7 +255,7 @@ def infer_one(im_name, net):
         lib.utils.draw_ploy_4pt(img, box[0:8], thickness=2)
 
     _, basename = os.path.split(im_name)
-    cv2.imwrite(TEST_RESULT + '/infer_' + basename, img)
+    cv2.imwrite(TEST_RESULT+'/infer_'+basename, img)
 
     for i in nms_result:
         vc = v[int(for_nms[i, 7]), 0, int(for_nms[i, 5]), int(for_nms[i, 6])]
@@ -297,7 +297,7 @@ def random_test(net):
             pt = lib.utils.trans_to_2pt(box[1], box[0] * 16 + 7.5, anchor_height[box[2]])
             for_nms.append([pt[0], pt[1], pt[2], pt[3], box[3], box[0], box[1], box[2]])
         for_nms = np.array(for_nms, dtype=np.float32)
-        nms_result = lib.nms.cpu_nms(for_nms, NMS_THRESH)
+        nms_result = lib.nms.cpu_nms(for_nms, NMS_THRESHOLD)
 
         out_nms = []
         for i in nms_result:
@@ -330,6 +330,9 @@ if __name__ == '__main__':
         mod: infer_one or random
         running_mode: cpu or gpu
     """
+    if not os.path.exists(TEST_RESULT):
+        os.mkdir(TEST_RESULT)
+
     running_mode = sys.argv[2]  # CPU or GPU
     print("Mode: %s" % running_mode)
     net = Net.CTPN()
