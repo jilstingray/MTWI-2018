@@ -255,7 +255,7 @@ def infer_one(im_name, net):
         lib.utils.draw_ploy_4pt(img, box[0:8], thickness=2)
 
     _, basename = os.path.split(im_name)
-    cv2.imwrite(TEST_RESULT+'/infer_'+basename, img)
+    cv2.imwrite(TEST_RESULT + '/infer_' + basename, img)
 
     for i in nms_result:
         vc = v[int(for_nms[i, 7]), 0, int(for_nms[i, 5]), int(for_nms[i, 6])]
@@ -266,7 +266,7 @@ def infer_one(im_name, net):
         h = math.pow(10, vh) * ha
         lib.utils.draw_box_2pt(img, for_nms[i, 0:4])
     _, basename = os.path.split(im_name)
-    cv2.imwrite(TEST_RESULT + '/infer_anchor_'+basename, img)
+    cv2.imwrite(TEST_RESULT + '/infer_anchor_' + basename, img)
 
 
 def random_test(net):

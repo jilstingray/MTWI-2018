@@ -103,8 +103,8 @@ if __name__ == '__main__':
     change_epoch = cf.getint('parameter', 'change_epoch') - 1
     logger.info('Learning rate: {0}, {1}, change epoch: {2}'.format(
         lr_front, lr_behind, change_epoch + 1))
-    print('Using gpu id(available if use cuda): {0}'.format(gpu_id))
-    print('Train epoch: {0}'.format(epoch))
+    print('GPU ID (available if use cuda): {0}'.format(gpu_id))
+    print('Training epoches: {0}'.format(epoch))
     print('Use CUDA: {0}'.format(using_cuda))
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
     no_grad = [
