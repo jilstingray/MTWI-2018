@@ -35,4 +35,6 @@ python infer.py [url] [infer_one(random)] [cpu(gpu)]
 
 ## Reference
 
+https://arxiv.org/abs/1609.03605
+
 https://github.com/AstarLight/Lets_OCR/tree/master/detector/ctpn
