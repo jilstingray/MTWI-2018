@@ -100,6 +100,14 @@ def bi_range(start, end):
         return range(start, end)
 
 
+def trans_to_2pt(position, cy, h, anchor_width=16):
+    x_left = position * anchor_width
+    x_right = (position + 1) * anchor_width - 1
+    y_top = int(cy - (float(h) - 1) / 2.0)
+    y_bottom = int(cy + (float(h) - 1) / 2.0)
+    return [x_left, y_top, x_right, y_bottom]
+
+
 # 初始化权重
 def init_weight(net):
     for i in range(len(net.rnn.blstm.lstm.all_weights)):

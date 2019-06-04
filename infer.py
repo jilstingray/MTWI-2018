@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-CPTN network testing process
+CPTN network infer process
+run command: python test.py [url infer_one] [random] [cpu(gpu)]
 """
 
 import copy
@@ -22,7 +23,7 @@ anchor_height = [11, 16, 22, 32, 46, 66, 94, 134, 191, 273]
 
 IMG_TEST_ROOT = "./mtwi_2018/image_test"
 TEST_RESULT = './test_result'
-THRESH_HOLD = 0.7
+THRESH_HOLD = 0.3
 NMS_THRESH = 0.3
 NEIGHBOURS_MIN_DIST = 50
 MIN_ANCHOR_BATCH = 2
@@ -218,6 +219,7 @@ def get_successions(v, anchors=[]):
     return result
 
 
+# test one image
 def infer_one(im_name, net):
     img = cv2.imread(im_name)
     img = dataset_handler.scale_image_only(img)
@@ -253,7 +255,7 @@ def infer_one(im_name, net):
         lib.utils.draw_ploy_4pt(img, box[0:8], thickness=2)
 
     _, basename = os.path.split(im_name)
-    cv2.imwrite('./infer_'+basename, img)
+    cv2.imwrite(TEST_RESULT + '/infer_' + basename, img)
 
     for i in nms_result:
         vc = v[int(for_nms[i, 7]), 0, int(for_nms[i, 5]), int(for_nms[i, 6])]
@@ -264,7 +266,7 @@ def infer_one(im_name, net):
         h = math.pow(10, vh) * ha
         lib.utils.draw_box_2pt(img, for_nms[i, 0:4])
     _, basename = os.path.split(im_name)
-    cv2.imwrite('./infer_anchor_'+basename, img)
+    cv2.imwrite(TEST_RESULT + '/infer_anchor_'+basename, img)
 
 
 def random_test(net):
@@ -322,6 +324,12 @@ def random_test(net):
         
 
 if __name__ == '__main__':
+    """
+    args:
+        url: image path (when model='infer_one')
+        mod: infer_one or random
+        running_mode: cpu or gpu
+    """
     running_mode = sys.argv[2]  # CPU or GPU
     print("Mode: %s" % running_mode)
     net = Net.CTPN()
