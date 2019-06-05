@@ -2,7 +2,7 @@
 
 """
 CPTN network infer process
-run command: python infer.py [url] [infer_one(random)] [cpu(gpu)]
+run command: python infer.py [(url)] [random(one)] [cpu(gpu)]
 """
 
 import copy
@@ -219,8 +219,8 @@ def get_successions(v, anchors=[]):
     return result
 
 
-# test one image
-def infer_one(im_name, net):
+# predict one image
+def predict_one(im_name, net):
     img = cv2.imread(im_name)
     img = dataset_handler.scale_image_only(img)
     image = copy.deepcopy(img)
@@ -326,8 +326,8 @@ def random_test(net):
 if __name__ == '__main__':
     """
     args:
-        url: image path (when model='infer_one')
-        mod: infer_one or random
+        url: image path (when mode='one')
+        mod: one or random
         running_mode: cpu or gpu
     """
     if not os.path.exists(TEST_RESULT):
@@ -347,4 +347,4 @@ if __name__ == '__main__':
         random_test(net)
     else:
         url = sys.argv[1]
-        infer_one(url, net)
+        predict_one(url, net)

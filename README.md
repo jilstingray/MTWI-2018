@@ -25,12 +25,12 @@ python setup_cython.py build_ext --inplace
 
 * If you've downloaded the original MTWI_2018 dataset from Aliyun, try to use `dataset_handler.reorganize_dataset()` to reorganize it, since some pictures may not be read as RGB channels.
 
-## Infer an image
+## Predict an image
 
-After training, open infer.py and set `MODEL` as your trained model's path. Then run infer.py:
+After training, open infer.py and set `MODEL` as your trained model's path. Then run predict.py:
 
 ```bash
-python infer.py [url] [infer_one(random)] [cpu(gpu)]
+python infer.py [(url)] [random(one)] [cpu(gpu)]
 ```
 
 ## Reference
