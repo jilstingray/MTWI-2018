@@ -30,7 +30,7 @@ python setup_cython.py build_ext --inplace
 After training, open infer.py and set `MODEL` as your trained model's path. Then run predict.py:
 
 ```bash
-python infer.py [(url)] [random(one)] [cpu(gpu)]
+python predict.py [(url)] [random(one)] [cpu(gpu)]
 ```
 
 ## Reference
