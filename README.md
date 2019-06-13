@@ -27,7 +27,7 @@ python setup_cython.py build_ext --inplace
 
 ## Predict an image
 
-After training, open infer.py and set `MODEL` as your trained model's path. Then run predict.py:
+After training, open predict.py and set `MODEL` as your trained model's path. Then run predict.py:
 
 ```bash
 python predict.py [(url)] [random(one)] [cpu(gpu)]
