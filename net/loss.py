@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-The CTPN network loss cauculation.
+CTPN loss calculation.
 """
 
 import random
@@ -20,74 +20,70 @@ class CTPN_Loss(nn.Module):
         self.Lo_reg = nn.SmoothL1Loss()  # side-refinement regression loss
         self.using_cuda = using_cuda
 
-    def forward(self, score, vertical_pred, side_refinement, positive, negative, vertical_reg, side_refinement_reg):
-        """
+    def forward(self, score, pred_y, side, positive, negative, y_reg, side_reg):
+        """Forward propagation.
+
         args:
             score: prediction score
-            vertical_pred: vertical coordinate prediction
-            side_refinement: side refinement prediction
+            pred_y: vertical coordinate prediction
+            side: side refinement prediction
             positive: ground truth positive fine-scale box
-            negative: ground truth negative fine-scale box
-            vertical_reg: ground truth vertical regression
-            side_refinement_reg: ground truth side-refinement regression
+            negativev: ground truth negative fine-scale box
+            y_reg: ground truth vertical regression
+            side_reg: ground truth side-refinement regression
+        
         return:
-            total loss and 3 parts of loss
+            loss: total loss
+            cls_loss: cross entropy loss
+            y_reg_loss: vertical regression loss
+            s_reg_loss: side-refinement regression loss
         """
         ## classification loss (using CrossEntropyLoss)
         cls_loss = 0.0
         positive_num = min(int(self.Ns * self.ratio), len(positive))
         negative_num = self.Ns - positive_num
         positive_batch = random.sample(positive, positive_num)
-        #print(positive_num, negative_num)
         negative_batch = random.sample(negative, negative_num)
         # using CUDA
         if self.using_cuda:
             for p in positive_batch:
-                cls_loss += self.Ls_cls(score[0, p[2] * 2: ((p[2] + 1) * 2), p[1], p[0]].unsqueeze(0),
-                                        torch.LongTensor([1]).cuda())
+                cls_loss += self.Ls_cls(score[0, p[2] * 2: ((p[2] + 1) * 2), p[1], p[0]].unsqueeze(0), torch.LongTensor([1]).cuda())
             for n in negative_batch:
-                cls_loss += self.Ls_cls(score[0, n[2] * 2: ((n[2] + 1) * 2), n[1], n[0]].unsqueeze(0),
-                                        torch.LongTensor([0]).cuda())
+                cls_loss += self.Ls_cls(score[0, n[2] * 2: ((n[2] + 1) * 2), n[1], n[0]].unsqueeze(0), torch.LongTensor([0]).cuda())
         # using CPU
         else:
             for p in positive_batch:
-                cls_loss += self.Ls_cls(score[0, p[2] * 2: ((p[2] + 1) * 2), p[1], p[0]].unsqueeze(0),
-                                        torch.LongTensor([1]))
+                cls_loss += self.Ls_cls(score[0, p[2] * 2: ((p[2] + 1) * 2), p[1], p[0]].unsqueeze(0), torch.LongTensor([1]))
             for n in negative_batch:
-                cls_loss += self.Ls_cls(score[0, n[2] * 2: ((n[2] + 1) * 2), n[1], n[0]].unsqueeze(0),
-                                        torch.LongTensor([0]))
+                cls_loss += self.Ls_cls(score[0, n[2] * 2: ((n[2] + 1) * 2), n[1], n[0]].unsqueeze(0), torch.LongTensor([0]))
         cls_loss = cls_loss / self.Ns
 
         ## vertical coordinate regression loss (using SmoothL1Loss)
-        v_reg_loss = 0.0
-        Nv = len(vertical_reg)
+        y_reg_loss = 0.0
+        Nv = len(y_reg)
         # using CUDA
         if self.using_cuda:
-            for v in vertical_reg:
-                v_reg_loss += self.Lv_reg(vertical_pred[0, v[2] * 2: ((v[2] + 1) * 2), v[1], v[0]].unsqueeze(0),
-                                          torch.FloatTensor([v[3], v[4]]).unsqueeze(0).cuda())
+            for v in y_reg:
+                y_reg_loss += self.Lv_reg(pred_y[0, v[2] * 2: ((v[2] + 1) * 2), v[1], v[0]].unsqueeze(0), torch.FloatTensor([v[3], v[4]]).unsqueeze(0).cuda())
         # using CPU
         else:
-            for v in vertical_reg:
-                v_reg_loss += self.Lv_reg(vertical_pred[0, v[2] * 2: ((v[2] + 1) * 2), v[1], v[0]].unsqueeze(0),
-                                          torch.FloatTensor([v[3], v[4]]).unsqueeze(0))
-        v_reg_loss = v_reg_loss / float(Nv)
+            for v in y_reg:
+                y_reg_loss += self.Lv_reg(pred_y[0, v[2] * 2: ((v[2] + 1) * 2), v[1], v[0]].unsqueeze(0), torch.FloatTensor([v[3], v[4]]).unsqueeze(0))
+        y_reg_loss = y_reg_loss / float(Nv)
 
         ## side-refinement regression loss (using SmoothL1Loss)
-        o_reg_loss = 0.0
-        No = len(side_refinement_reg)
+        s_reg_loss = 0.0
+        No = len(side_reg)
         # using CUDA
         if self.using_cuda:
-            for s in side_refinement_reg:
-                o_reg_loss += self.Lo_reg(side_refinement[0, s[2]: s[2] + 1, s[1], s[0]].unsqueeze(0),
-                                          torch.FloatTensor([s[3]]).unsqueeze(0).cuda())
+            for s in side_reg:
+                s_reg_loss += self.Lo_reg(side[0, s[2]: s[2] + 1, s[1], s[0]].unsqueeze(0), torch.FloatTensor([s[3]]).unsqueeze(0).cuda())
         # using CPU
         else:
-            for s in side_refinement_reg:
-                o_reg_loss += self.Lo_reg(side_refinement[0, s[2]: s[2] + 1, s[1], s[0]].unsqueeze(0),
-                                          torch.FloatTensor([s[3]]).unsqueeze(0))
-        o_reg_loss = o_reg_loss / float(No)
+            for s in side_reg:
+                s_reg_loss += self.Lo_reg(side[0, s[2]: s[2] + 1, s[1], s[0]].unsqueeze(0), torch.FloatTensor([s[3]]).unsqueeze(0))
+        s_reg_loss = s_reg_loss / float(No)
 
-        # total loss
-        loss = cls_loss + v_reg_loss * self.lambda1 + o_reg_loss * self.lambda2
-        return loss, cls_loss, v_reg_loss, o_reg_loss
+        ## total loss
+        loss = cls_loss + y_reg_loss * self.lambda1 + s_reg_loss * self.lambda2
+        return loss, cls_loss, y_reg_loss, s_reg_loss

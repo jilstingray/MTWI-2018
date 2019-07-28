@@ -1,34 +1,31 @@
 # -*- coding: utf-8 -*-
 
 """
-Training model validation & evaluation 
+Model evaluation 
 """
 
 import copy
 import os
 import random
 import time
+
 import cv2
 import numpy as np
 import torch
-import dataset_handler
-import lib.generate_anchor
-import lib.tag_anchor
 
-def val(network, criterion, batch_size, using_cuda, logger, image_list):
+import handler
+import lib.utils
+import lib.utils
+
+
+def evalue(net, criterion, batch_size, using_cuda, logger, image_list):
     # get image list randomly
     random_list = random.sample(image_list, batch_size)
-    """
-    MAIN PARAMETERS:
-        total_loss
-        total_cls_loss: classification loss
-        total_v_reg_loss: vertical parameters' regression loss (height, y-axis coords)
-        total_o_reg_loss: side-refinement loss of bbox
-    """
+
     total_loss = 0
-    total_cls_loss = 0
-    total_v_reg_loss = 0
-    total_o_reg_loss = 0
+    total_cls_loss = 0      # classification loss
+    total_v_reg_loss = 0    # vertical parameters' regression loss (height, y-axis coords)
+    total_o_reg_loss = 0    # side-refinement loss of bbox
 
     # start evaluation
     start_time = time.time()
@@ -43,26 +40,26 @@ def val(network, criterion, batch_size, using_cuda, logger, image_list):
             print('txt file of image {0} not exists.'.format(txt_path))
             continue
         # read txt labels
-        txt = dataset_handler.read_txt_file(txt_path)     
+        txt = handler.read_txt(txt_path)     
         # read image
         image = cv2.imread(i)
         if image is None:
             batch_size -= 1
             continue
 
-        image, txt = dataset_handler.scale_image(image, txt)
-        tensor_img = image[np.newaxis, :, :, :]
-        tensor_img = tensor_img.transpose((0, 3, 1, 2))
+        image, txt = handler.scale_image(image, txt)
+        tensor_image = image[np.newaxis, :, :, :]
+        tensor_image = tensor_image.transpose((0, 3, 1, 2))
         # using CUDA
         if using_cuda:
-            tensor_img = torch.FloatTensor(tensor_img).cuda()
+            tensor_image = torch.FloatTensor(tensor_image).cuda()
         # using CPU
         else:
-            tensor_img = torch.FloatTensor(tensor_img)
+            tensor_image = torch.FloatTensor(tensor_image)
 
         # network forwarding
-        vertical_pred, score, side_refinement = network(tensor_img)
-        del tensor_img
+        vertical_pred, score, side_refinement = net(tensor_image)
+        del tensor_image
         positive = []
         negative = []
         vertical_reg = []
@@ -72,9 +69,9 @@ def val(network, criterion, batch_size, using_cuda, logger, image_list):
         try:
             for box in txt:
                 # generate anchor
-                txt_anchor, visual_image = lib.generate_anchor.generate_anchor(image, box, draw_image_box=visual_image)
+                txt_anchor, visual_image = lib.utils.gen_anchor(image, box, draw_image_box=visual_image)
                 # tag anchor
-                positive1, negative1, vertical_reg1, side_refinement_reg1 = lib.tag_anchor.tag_anchor(txt_anchor, score, box)
+                positive1, negative1, vertical_reg1, side_refinement_reg1 = lib.utils.tag_anchor(txt_anchor, score, box)
                 positive += positive1
                 negative += negative1
                 vertical_reg += vertical_reg1

@@ -11,16 +11,18 @@ Some functions (scaling, etc.) in this file are necessary for training
 import codecs
 import os
 import sys
+
 import cv2
 import lmdb
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
+
 import lib.utils as utils
 import net.network as Net
 
-# 数据集预处理
-def dataset_prehandler(src_path, out_path):
+
+def prehandler(src_path, out_path):
     txt_list = os.listdir(src_path)
     for f in txt_list:
         src = open(os.path.join(src_path, f), encoding='utf-8')
@@ -39,15 +41,13 @@ def dataset_prehandler(src_path, out_path):
         out.close()
     
 
-# 读入txt标签文件
-def read_txt_file(path):
-    """
-    读入给定路径下的txt, 一个txt对应一张图
-    txt的每个元素为一个8维向量, 储存box（文字框）的顶点坐标
+def read_txt(path):
+    """Read txt files.
+
+    Each element of txt is an 8-dimensional vector, which stores the vertex coords of the text box.
     """
     result = []
     fp = open(path, 'r', encoding='utf-8')
-    # 读入标签
     for line in fp.readlines():
         pt = line.split(',')
         box = [int(round(float(pt[i]))) for i in range(8)]
@@ -56,13 +56,13 @@ def read_txt_file(path):
     return result
 
 
-# 建立MTWI-2018数据集
-def create_dataset_mtwi(image_dir, txt_dir, output_dir):
-    """
+def create_dataset(image_dir, txt_dir, out_dir):
+    """Create MTWI-2018 dataset.
+
     args: 
-        image_dir: 图片文件夹路径
-        txt_dir: 文件夹路径
-        output_dir: 输出路径
+        image_dir
+        txt_dir
+        out_dir
     """
     image_list = os.listdir(image_dir)
     image_path_list = []
@@ -70,39 +70,40 @@ def create_dataset_mtwi(image_dir, txt_dir, output_dir):
     for i in image_list:
         name, _ = os.path.splitext(i)
         txt_name = name + '.txt'
-        txt_path = os.path.join(txt_dir, txt_name) 
-        if not os.path.exists(txt_path):
+        txt_dir = os.path.join(txt_dir, txt_name) 
+        if not os.path.exists(txt_dir):
             print('Labels of image {0} not found.'.format(i))
         image_path_list.append(os.path.join(image_dir, i))
-        txt_path_list.append(txt_path)
+        txt_path_list.append(txt_dir)
     assert len(image_path_list) == len(txt_path_list)
-    create_dataset(output_dir, image_path_list, txt_path_list)
+    create_dataset(out_dir, image_path_list, txt_path_list)
 
 
-# 缩放图像和坐标
 def scale_image(image, txt, shortest_side=600):
-    """
-    此函数的作用是缩放图像, 同时相应的边框的坐标也要缩放
-    return: image, txt scale
+    """Scale the image and coords of the boxes.
+
+    return:
+        image
+        scale_txt
     """
     height = image.shape[0]
     width = image.shape[1]
-    # 求得图像的缩放系数, 对原始图像进行缩放
+    # get the zoom ratio of the image and scale the original image
     scale = float(shortest_side)/float(min(height, width))
     image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
     
-    # 将图片尺寸缩放为600*600
+    # scale the image size to 600*600
     if image.shape[0] < image.shape[1] and image.shape[0] != 600:
         image = cv2.resize(image, (600, image.shape[1]))
     elif image.shape[0] > image.shape[1] and image.shape[1] != 600:
         image = cv2.resize(image, (image.shape[0], 600))
     elif image.shape[0] != 600:
         image = cv2.resize(image, (600, 600))
-    # 重新计算宽高各自的缩放比, 应该很接近
+    # recalculate the zoom ratio of the width and height
     h_scale = float(image.shape[0])/float(height)
     w_scale = float(image.shape[1])/float(width)
     scale_txt = []
-    # 边框坐标同时缩放
+    # scale coords of the box
     for box in txt:
         scale_box = []
         for i in range(len(box)):
@@ -114,7 +115,6 @@ def scale_image(image, txt, shortest_side=600):
     return image, scale_txt
 
 
-# 缩放图像(尺寸600*600)
 def scale_image_only(image, shortest_side=600):
     height = image.shape[0]
     width = image.shape[1]
@@ -129,8 +129,10 @@ def scale_image_only(image, shortest_side=600):
     return image
 
 
-# 检查图像完整性
+# 
 def check_image(image):
+    """Check image integrity.
+    """
     if image is None:
         return False
     height, width = image.shape[0], image.shape[1]
@@ -139,7 +141,6 @@ def check_image(image):
     return True
 
 
-# 写入LMDB
 def write_data(env, data):
     with env.begin(write=True) as e:
         for name, image in data.items():
@@ -148,8 +149,9 @@ def write_data(env, data):
             e.put(name.encode(), str(image).encode())
 
 
-# 边框坐标列表转化为字符输出
 def list2str(input_list):
+    """List (coords) to string.
+    """
     result = []
     for box in input_list:
         if not len(box) % 8 == 0:
@@ -158,8 +160,9 @@ def list2str(input_list):
     return '|'.join(result), True
 
 
-# OPTIONAL: 建立LMDB数据集
 def create_dataset(output_dir, image_list, txt_list):
+    """Create LMDB dataset (optional).
+    """
     assert len(image_list) == len(txt_list)
     network = Net.VGG_16()
     num = len(image_list)
@@ -172,7 +175,7 @@ def create_dataset(output_dir, image_list, txt_list):
     counter = 1
     for i in range(num):
         image_path = image_list[i]
-        txt = read_txt_file(txt_list[i])
+        txt = read_txt(txt_list[i])
         # check existance of image path
         if not os.path.exists(image_path):
             print("{0} not found.".format(image_path))
@@ -188,15 +191,15 @@ def create_dataset(output_dir, image_list, txt_list):
             print('image {0} is not valid.'.format(image_path))
             continue
         
-        # 缩放图片和坐标
+        # scale the image and coords
         image, txt = scale_image(image, txt)
-        # 坐标转化为字符
+        # list to string
         txt_str = list2str(txt)
         if not txt_str[1]:
             print("labels of {0} are not valid.".format(image_path))
             continue
         
-        # 把图片和坐标存入env
+        # save the image and the txt into 'env'
         image_key = 'image-%09d' % counter
         txt_key = 'txt-%09d' % counter
         cache[image_key] = utils.np_img2base64(image, image_path)
@@ -213,7 +216,6 @@ def create_dataset(output_dir, image_list, txt_list):
     print('create dataset with {0} image.'.format(counter - 1))
 
 
-# LMDB dataset class
 class LMDB_dataset(Dataset):
     def __init__(self, root, transformer=None):
         self.env = lmdb.open(root, max_readers=1, readonly=True, lock=False, readahead=False, meminit=False)
@@ -232,13 +234,12 @@ class LMDB_dataset(Dataset):
         with self.env.begin(write=False) as e:
             image_key = 'image-%09d' % index
             image_base64 = e.get(image_key)
-            image = utils.base642np_image(image_base64)
+            image = utils.base642img(image_base64)
             txt_key = 'txt-%09d' % index
             txt = str(e.get(txt_key))
         return image, txt
 
 
-# 整理数据集
 def reorganize_dataset(image_dir, txt_dir):
     all_image = os.listdir(image_dir)
     all_label = os.listdir(txt_dir)
