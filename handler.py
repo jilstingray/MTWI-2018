@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-Dataset handler
+"""Dataset handler
 
 If you've got the original MTWI_2018 dataset from Aliyun, try to use reorganize_dataset() to reorganize it.
 The LMDB dataset generation procedure is optional.
@@ -42,7 +41,7 @@ def prehandler(src_path, out_path):
     
 
 def read_txt(path):
-    """Read txt files.
+    """Read txt (ground truth) files.
 
     Each element of txt is an 8-dimensional vector, which stores the vertex coords of the text box.
     """
@@ -59,7 +58,7 @@ def read_txt(path):
 def create_dataset(image_dir, txt_dir, out_dir):
     """Create MTWI-2018 dataset.
 
-    args: 
+    Args: 
         image_dir
         txt_dir
         out_dir
@@ -80,9 +79,9 @@ def create_dataset(image_dir, txt_dir, out_dir):
 
 
 def scale_image(image, txt, shortest_side=600):
-    """Scale the image and coords of the boxes.
+    """Scale the image and coordinaries of the boxes.
 
-    return:
+    Returns:
         image
         scale_txt
     """
@@ -116,6 +115,8 @@ def scale_image(image, txt, shortest_side=600):
 
 
 def scale_image_only(image, shortest_side=600):
+    """Scale the image downto 600.
+    """
     height = image.shape[0]
     width = image.shape[1]
     scale = float(shortest_side)/float(min(height, width))
@@ -129,7 +130,6 @@ def scale_image_only(image, shortest_side=600):
     return image
 
 
-# 
 def check_image(image):
     """Check image integrity.
     """
@@ -150,7 +150,7 @@ def write_data(env, data):
 
 
 def list2str(input_list):
-    """List (coords) to string.
+    """List (coordinates) to string.
     """
     result = []
     for box in input_list:
@@ -161,7 +161,7 @@ def list2str(input_list):
 
 
 def create_dataset(output_dir, image_list, txt_list):
-    """Create LMDB dataset (optional).
+    """Create LMDB (Lightning Memory-Mapped Database) dataset (optional).
     """
     assert len(image_list) == len(txt_list)
     network = Net.VGG_16()
@@ -180,7 +180,7 @@ def create_dataset(output_dir, image_list, txt_list):
         if not os.path.exists(image_path):
             print("{0} not found.".format(image_path))
             continue
-        # check existance of txt file
+        # check existance of txt file (ground truth)
         if len(txt) == 0:
             print("labels of {0} not found.".format(image_path))
             continue
@@ -270,4 +270,4 @@ if __name__ == '__main__':
     output_dir = 'data'
     reorganize_dataset(image_dir, txt_dir)
     # OPTIONAL: create LMDB dataset
-    #create_dataset_mtwi(image_dir, txt_dir, output_dir)
+    #create_dataset(image_dir, txt_dir, output_dir)

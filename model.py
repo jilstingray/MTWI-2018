@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-Generate revised VGG16 model.
+"""Generate revised VGG16 model.
 """
 
 import sys
@@ -15,6 +14,7 @@ import net.network as Net
 def gen_VGG16(net, output_path):
     """Generate VGG16 model.
     """
+
     vgg_16 = models.vgg16(pretrained=False)
     #print(vgg_16)
 

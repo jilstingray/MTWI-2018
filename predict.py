@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-"""
-CPTN network predict process
+"""CPTN network predict process
 
 run command: python predict.py [path] [mode] [running_mode]
 
-args:
+Args:
     path: image path (when mode='one')
     mode: one or random
     running_mode: cpu or gpu
@@ -54,7 +53,7 @@ def clip_box(boxes, image_size):
 def fit_y(cx, cy, x1, x2):
     """Use 1-d polynomial fitting to estimate y1, y2.
 
-    args:
+    Args:
         cx: center x
         cy: center y
         x1: point 1
@@ -222,6 +221,7 @@ def succession(v, anchors=[]):
 
 def predict_one(image_path, net):
     """Predict only one image.
+
     """
     img = cv2.imread(image_path)
     img = handler.scale_image_only(img)
@@ -273,6 +273,7 @@ def predict_one(image_path, net):
 
 def random_test(net):
     """Test images in the folder randomly.
+    
     """
     test_pair = gen_test_pair(IMG_TEST_ROOT, 0)
     #print(test_pair)

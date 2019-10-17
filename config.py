@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-Create config file.
+"""Create config file.
 
 Check your GPU first and modify the content below.
 """

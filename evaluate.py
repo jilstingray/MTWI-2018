@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-Model evaluation 
+"""Model evaluation
 """
 
 import copy

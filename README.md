@@ -12,7 +12,7 @@ https://tianchi.aliyun.com/competition/entrance/231685/introduction
 
 * cython, configphaser, lmdb, matplotlib, numpy, opencv-python are required.
 
-## Run this files before training
+## Run before training
 
 * Run setup_cython.py FIRST: 
 

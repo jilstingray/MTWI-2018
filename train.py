@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-CPTN training process.
+"""CPTN training process
 """
 
 import configparser
@@ -30,7 +29,7 @@ DATASET = './mtwi_2018'
 MODEL_SAVE_PATH = './model'
 
 
-def loop_file(path):
+def loop_files(path):
     files = []
     l = os.listdir(path)
     for f in l:
@@ -39,18 +38,20 @@ def loop_file(path):
 
 
 def get_train_val():
+    # image list
     train_img_list = []
     test_img_list = []
+    # ground truth list
     train_txt_list = []
     test_txt_list = []
     train_img_path = os.path.join(DATASET, 'image_train')
     test_img_path = os.path.join(DATASET, 'image_test')
     train_txt_path = os.path.join(DATASET, 'txt_train')
     test_txt_path = os.path.join(DATASET, 'txt_test')
-    train_img = loop_file(train_img_path)
-    train_txt = loop_file(train_txt_path)
-    test_img = loop_file(test_img_path)
-    test_txt = loop_file(test_txt_path)
+    train_img = loop_files(train_img_path)
+    train_txt = loop_files(train_txt_path)
+    test_img = loop_files(test_img_path)
+    test_txt = loop_files(test_txt_path)
     train_img_list += train_img
     test_img_list += test_img
     train_txt_list += train_txt
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     # print network construct
     #print(net)
 
-    # training loss
+    # train loss
     get_loss = Loss.CTPN_Loss(using_cuda=using_cuda)
     train_img_list, train_txt_list, val_img_list, val_txt_list = get_train_val()
     total_iter = len(train_img_list)
@@ -186,7 +187,7 @@ if __name__ == '__main__':
                 tensor_image = torch.FloatTensor(tensor_image)
             pred_y, score, side = net(tensor_image)
             del tensor_image
-            # transform bbox txt to anchor txt for training
+            # transform bbox txt (ground truth) to anchor txt (ground truth) for training
             positive = []
             negative = []
             y_reg = []
@@ -204,8 +205,8 @@ if __name__ == '__main__':
                     y_reg += y_reg1
                     side_reg += side_reg1
             except:
-                print("Warning: image %s raise error!" % j)
-                batch_size += 1
+                print("Warning: image %s raises error!" % j)
+                iterator += 1
                 continue
             if len(y_reg) == 0 or len(positive) == 0 or len(side_reg) == 0:
                 iterator += 1

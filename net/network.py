@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-The CTPN network implementation based on PyTorch.
+"""CTPN implementation based on PyTorch
 """
 
 import numpy as np
@@ -85,8 +84,6 @@ class Im2col(nn.Module):
 
 class BLSTM(nn.Module):
     """Bi-directional Long Short-Term Memory Network
-
-
     """
     def __init__(self, channel, hidden_unit, bidirectional=True):
         super(BLSTM, self).__init__()
@@ -105,7 +102,7 @@ class CTPN(nn.Module):
     
     Connect VGG16 with BLSTM.
     
-    return:
+    Returns:
         pred_y
         score
         side_refinement

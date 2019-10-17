@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""
-Fast R-CNN non-maximum suppression Cython setup
+"""Fast R-CNN non-maximum suppression Cython setup
+
 run command: python setup_cython.py build_ext --inplace
 """
 

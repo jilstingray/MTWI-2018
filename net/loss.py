@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-CTPN loss calculation.
+"""CTPN loss calculation
 """
 
 import random
@@ -23,7 +22,7 @@ class CTPN_Loss(nn.Module):
     def forward(self, score, pred_y, side, positive, negative, y_reg, side_reg):
         """Forward propagation.
 
-        args:
+        Args:
             score: prediction score
             pred_y: vertical coordinate prediction
             side: side refinement prediction
@@ -32,7 +31,7 @@ class CTPN_Loss(nn.Module):
             y_reg: ground truth vertical regression
             side_reg: ground truth side-refinement regression
         
-        return:
+        Returns:
             loss: total loss
             cls_loss: cross entropy loss
             y_reg_loss: vertical regression loss

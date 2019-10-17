@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-This file contains some utilites.
+"""Utilites
 """
 
 import base64
@@ -79,7 +78,7 @@ def base642img(b64code):
 def get_y(pos1, pos2, x, form):
     """Calculate the y corresponding to x on the line connected by point 1 & 2
 
-    args:
+    Args:
         pos1: point 1 position
         pos2: point 2 position
         x
@@ -133,12 +132,12 @@ def init_weight(net):
 def gen_anchor(image, txt, anchor_width=16, draw_image_box=None):
     """Generate the anchor.
 
-    args:
+    Args:
         image
         txt
         anchor_width
     
-    return:
+    Returns:
         list of tuple(position, center_y, height)
     """
     result = []
@@ -161,7 +160,7 @@ def gen_anchor(image, txt, anchor_width=16, draw_image_box=None):
             cy = (float(y_bases[i]) + float(y_tops[i])) / 2.0
             h = y_bases[i] - y_tops[i] + 1
             result.append((position, cy, h))
-            # 绘制ground truth anchor
+            # draw ground truth anchor
             draw_image_box = draw_slice(draw_image_box, position, cy, h)
         draw_image_box = draw_box_4pt(draw_image_box, box, color=(0, 0, 255), thickness=1)
     return result, draw_image_box
@@ -170,12 +169,12 @@ def gen_anchor(image, txt, anchor_width=16, draw_image_box=None):
 def anchor_y(raw_image, pairs, pt):
     """Calculate the y-axis coords of the top and base bounds of anchors in the text box.
 
-    args:
+    Args:
         raw_image: input image
         pairs: for example: [(0, 15), (16, 31), ...]
         pt: coords of the vertexs of anchors
     
-    return: 
+    Returns: 
         top and base y-axis coords of anchors
     """
     image = copy.deepcopy(raw_image)
@@ -221,11 +220,11 @@ def anchor_y(raw_image, pairs, pt):
 def get_anchor_in_image(image_path, txt_path):
     """Find all anchors in the image.
 
-    args:
+    Args:
         image_path: *.jpg 
         label_path: *.txt
     
-    return:
+    Returns:
         list of anchors
     """
     image = Image.open(image_path)
@@ -246,7 +245,7 @@ def get_anchor_in_image(image_path, txt_path):
 def get_iou(cy1, h1, cy2, h2):
     """Calculate intersection over union (IoU).
 
-    args:
+    Args:
         cy1: center y
         h1: height
         cy2: center y
@@ -272,7 +271,7 @@ def get_iou(cy1, h1, cy2, h2):
 def y_range(cy, h):
     """Get the y-axiz coords of the top and base bound of a rectangle.
 
-    args:
+    Args:
         cy: center y
         h: height
     """
@@ -284,7 +283,7 @@ def y_range(cy, h):
 def valid_anchor(cy, h, height):
     """Validate the anchor.
 
-    args:
+    Args:
         cy: center y of the anchor
         h: height of the anchor
         height: height of the slices
