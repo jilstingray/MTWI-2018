@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Dataset handler: reorganize training dataset, create dataset using LMDB (optional) 
-    and some necessary data processing functions.
+Dataset handler
+
 If you've got the original MTWI_2018 dataset from Aliyun, try to use reorganize_dataset() to reorganize it.
 The LMDB dataset generation procedure is optional.
-Some functions (scaling, etc.) in this file are necessary for training
+Some functions (scaling, etc.) in this file are necessary for training.
 """
 
 import codecs

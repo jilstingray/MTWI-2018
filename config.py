@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Create config file. Check your GPU first and modify the content below.
+Create config file.
+
+Check your GPU first and modify the content below.
 """
 
 import configparser

@@ -18,7 +18,7 @@ import lib.utils
 import lib.utils
 
 
-def evalue(net, criterion, batch_size, using_cuda, logger, image_list):
+def evaluate(net, criterion, batch_size, using_cuda, logger, image_list):
     # get image list randomly
     random_list = random.sample(image_list, batch_size)
 

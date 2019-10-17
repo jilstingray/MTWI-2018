@@ -16,7 +16,7 @@ from PIL import Image
 
 
 def draw_box_4pt(image, pts, color=(0, 255, 0), thickness=2):
-    """Draw a text box (4 points)
+    """Draw a text box (4 points).
     """
     if not isinstance(pts[0], int):
         pts = [int(pts[i]) for i in range(8)]
@@ -28,7 +28,7 @@ def draw_box_4pt(image, pts, color=(0, 255, 0), thickness=2):
 
 
 def draw_poly_4pt(image, pts, color=(0, 255, 255), thickness=1):
-    """Draw polygonal curves (4 points)
+    """Draw polygonal curves (4 points).
     """
     points = np.array([[pts[0], pts[1]], [pts[2], pts[3]], [pts[4], pts[5]], [pts[6], pts[7]]], np.int32)
     #print(points)
@@ -37,7 +37,7 @@ def draw_poly_4pt(image, pts, color=(0, 255, 255), thickness=1):
 
 
 def draw_box_2pt(image, pts, color=(0, 255, 0), thickness=1):
-    """Draw a rectangle through the diagonal (2 points)
+    """Draw a rectangle through the diagonal (2 points).
     """
     if not isinstance(pts[0], int):
         pts = [int(pts[i]) for i in range(4)]
